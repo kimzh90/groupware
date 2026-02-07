@@ -1,73 +1,67 @@
-# Project Structure
+# Project Structure (Updated: Turborepo + Next.js 15 App Router)
 
-This project follows a monorepo structure using a module-based organization for the backend (NestJS) and a feature-based organization for the frontend (React).
+This project is a Turborepo-managed monorepo with a clear separation between the web frontend and the API backend.
 
-## Monorepo Overview
+## Monorepo Overview (Turborepo)
 
 ```text
 /
 ├── apps/
-│   ├── client/          # React (Vite) Frontend
-│   └── server/          # NestJS Backend
+│   ├── web/             # Next.js 15 (App Router) Frontend
+│   └── api/             # NestJS Backend
 ├── package.json         # Workspace root configuration
+├── turbo.json           # Turborepo configuration
 └── STRUCTURE.md         # This file
 ```
 
-## Backend Structure (NestJS)
+## Backend Structure (NestJS - apps/api)
 
-The backend is organized into modules to ensure high cohesion and low coupling. Each module encapsulates its own controllers, services, and entities.
+The backend is organized into domain-based modules.
 
 ```text
-apps/server/
+apps/api/
 ├── src/
 │   ├── modules/
-│   │   ├── auth/         # Authentication (JWT, RBAC)
+│   │   ├── auth/         # JWT Auth, Middleware
 │   │   ├── users/        # User management
-│   │   ├── departments/  # Department hierarchy management
-│   │   ├── boards/       # Board types and configuration
-│   │   ├── posts/        # Board posts and content
-│   │   └── approvals/    # Electronic approval workflows
-│   ├── common/           # Shared guards, decorators, filters, interceptors
-│   ├── config/           # Environment and app configuration
-│   ├── database/         # Prisma service and module
-│   └── main.ts           # Application entry point
+│   │   ├── departments/  # Department hierarchy
+│   │   ├── boards/       # Board management
+│   │   ├── posts/        # Post management
+│   │   └── approvals/    # Electronic approval workflow
+│   ├── common/           # Shared guards, decorators
+│   ├── config/           # App configuration
+│   └── main.ts           # Entry point
 ├── prisma/
-│   └── schema.prisma     # Database schema (Prisma)
-└── ...
+│   └── schema.prisma     # Prisma Schema
+└── .env                  # Database connection
 ```
 
-### Key Modules:
-- **AuthModule**: Handles JWT Access/Refresh tokens and Role-Based Access Control.
-- **ApprovalModule**: Manages the multi-step approval process.
+## Frontend Structure (Next.js 15 App Router - apps/web)
 
-## Frontend Structure (React)
-
-The frontend uses a feature-based architecture. This allows for better scalability as the application grows, keeping all related components, hooks, and logic for a specific feature together.
+The frontend uses Next.js 15's App Router for routing and follows a feature-based organization for business logic.
 
 ```text
-apps/client/
-├── src/
-│   ├── api/              # Axios instance and global API configuration
-│   ├── components/       # Common UI components (Shadcn/UI)
-│   ├── features/         # Feature-specific modules
-│   │   ├── auth/         # Login, registration, token handling
-│   │   ├── users/        # User profile, directory
-│   │   ├── departments/  # Org chart, department views
-│   │   ├── boards/       # Post lists, post creation
-│   │   └── approvals/    # Approval requests, pending lists
-│   ├── hooks/            # Global reusable hooks
-│   ├── layouts/          # Page layouts (Sidebar, Header, etc.)
-│   ├── pages/            # Routable page components (using features)
-│   ├── store/            # Zustand state management
-│   ├── types/            # TypeScript definitions/interfaces
-│   ├── utils/            # Helper functions
-│   └── App.tsx           # Main application component
-└── ...
+apps/web/
+├── app/                  # Next.js 15 App Router
+│   ├── (auth)/           # Authentication routes (login, etc.)
+│   ├── (dashboard)/      # Protected dashboard routes
+│   ├── layout.tsx        # Root layout
+│   └── page.tsx          # Landing page
+├── components/           # Shared UI components (Shadcn/UI)
+├── src/features/         # Domain-driven features
+│   ├── auth/             # Login logic, state
+│   ├── users/            # User profile components
+│   ├── approvals/        # Approval request forms
+│   └── ...
+├── store/                # Zustand state management
+├── hooks/                # Global React Query / custom hooks
+├── lib/                  # Utilities, API clients (TanStack Query)
+└── public/               # Static assets
 ```
 
-### Feature Pattern:
-Each feature inside `features/` typically contains:
-- `components/`: Feature-specific components.
-- `hooks/`: Feature-specific React Query hooks.
-- `api/`: Feature-specific API calls.
-- `types.ts`: Feature-specific types.
+### Tech Stack Highlights:
+- **Next.js 15**: Leveraging Server Components and App Router.
+- **NestJS**: Modular architecture for robust API development.
+- **Turborepo**: Optimized build pipelines and caching.
+- **Prisma**: Type-safe database access with PostgreSQL.
+- **TanStack Query**: Efficient server state management and caching in the frontend.
