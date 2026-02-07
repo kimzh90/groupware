@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  USER
+}
+
+enum ApprovalStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum BoardType {
+  NOTICE
+  DEPARTMENT
+  GENERAL
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  name          String
+  employeeId    String         @unique // 사번
+  position      String         // 직급
+  role          Role           @default(USER)
+
+  departmentId  String?
+  department    Department?    @relation(fields: [departmentId], references: [id])
+
+  supervisorId  String?
+  supervisor    User?          @relation("SupervisorRelation", fields: [supervisorId], references: [id])
+  subordinates  User[]         @relation("SupervisorRelation")
+
+  posts         Post[]
+  approvals     Approval[]
+  approvalLines ApprovalLine[]
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@map("users")
+}
+
+model Department {
+  id        String       @id @default(uuid())
+  name      String
+  code      String       @unique // 부서 코드
+
+  parentId  String?
+  parent    Department?  @relation("DepartmentTree", fields: [parentId], references: [id])
+  children  Department[] @relation("DepartmentTree")
+
+  users     User[]
+
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@map("departments")
+}
+
+model Board {
+  id        String    @id @default(uuid())
+  name      String
+  type      BoardType @default(GENERAL)
+  posts     Post[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("boards")
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  title     String
+  content   String   @db.Text
+  views     Int      @default(0)
+
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+
+  boardId   String
+  board     Board    @relation(fields: [boardId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("posts")
+}
+
+model Approval {
+  id          String         @id @default(uuid())
+  title       String
+  content     String         @db.Text
+  status      ApprovalStatus @default(DRAFT)
+
+  requesterId String
+  requester   User           @relation(fields: [requesterId], references: [id])
+
+  lines       ApprovalLine[]
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@map("approvals")
+}
+
+model ApprovalLine {
+  id         String         @id @default(uuid())
+  step       Int            // 결재 순서
+  status     ApprovalStatus @default(PENDING)
+  comment    String?
+
+  approverId String
+  approver   User           @relation(fields: [approverId], references: [id])
+
+  approvalId String
+  approval   Approval       @relation(fields: [approvalId], references: [id])
+
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@map("approval_lines")
+}
