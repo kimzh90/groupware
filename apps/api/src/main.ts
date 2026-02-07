@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
@@ -18,6 +19,9 @@ async function bootstrap() {
 
   // Global Interceptor for Response Format
   app.useGlobalInterceptors(new TransformInterceptor());
+
+  // Global Exception Filter for Error Format
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Global Validation Pipe
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
