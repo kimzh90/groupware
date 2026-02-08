@@ -1,8 +1,17 @@
-import { Controller, Get, Post, Body, UseGuards, Request, Param, Put } from '@nestjs/common';
-import { ApprovalsService } from './approvals.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  Request,
+  Param,
+  Put,
+} from "@nestjs/common";
+import { ApprovalsService } from "./approvals.service";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 
-@Controller('approvals')
+@Controller("approvals")
 @UseGuards(JwtAuthGuard)
 export class ApprovalsController {
   constructor(private approvalsService: ApprovalsService) {}
@@ -17,12 +26,22 @@ export class ApprovalsController {
     return this.approvalsService.findAll(req.user.userId);
   }
 
-  @Put(':id/process')
+  @Get(":id")
+  async findOne(@Param("id") id: string) {
+    return this.approvalsService.findOne(id);
+  }
+
+  @Put(":id/process")
   async process(
     @Request() req: any,
-    @Param('id') id: string,
-    @Body() body: { action: 'APPROVE' | 'REJECT'; comment?: string },
+    @Param("id") id: string,
+    @Body() body: { action: "APPROVE" | "REJECT"; comment?: string },
   ) {
-    return this.approvalsService.process(req.user.userId, id, body.action, body.comment);
+    return this.approvalsService.process(
+      req.user.userId,
+      id,
+      body.action,
+      body.comment,
+    );
   }
 }

@@ -1,13 +1,87 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@layer base {
+  :root {
+    /* Atlassian Light Mode */
+    --background: 0 0% 100%;
+    /* #FFFFFF */
+    --foreground: 218 54% 20%;
+    /* #172B4D (Dark Navy) */
+
+    --card: 0 0% 100%;
+    --card-foreground: 218 54% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 218 54% 20%;
+
+    /* Atlassian Blue #0052CC -> 217 91% 60% approx (adjusted for HSL) */
+    --primary: 217 91% 40%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Neutral 100 #EBECF0 */
+    --secondary: 220 13% 91%;
+    --secondary-foreground: 218 54% 20%;
+
+    --muted: 220 13% 91%;
+    --muted-foreground: 217 10% 45%;
+
+    --accent: 220 13% 95%;
+    /* Lighter gray for hover */
+    --accent-foreground: 217 91% 40%;
+    /* Blue text on hover */
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 85%;
+    /* Neutral 200 #DFE1E6 */
+    --input: 220 13% 85%;
+    --ring: 217 91% 40%;
+
+    --radius: 0.25rem;
+    /* 4px for sharper look */
+  }
+
+  .dark {
+    /* Atlassian Dark Mode (Approx) */
+    --background: 218 54% 10%;
+    --foreground: 210 40% 98%;
+
+    --card: 218 54% 12%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 218 54% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217 91% 60%;
+    /* Lighter blue for dark mode */
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 217 91% 60%;
+  }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
 }

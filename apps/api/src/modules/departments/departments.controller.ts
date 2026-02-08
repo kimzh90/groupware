@@ -1,13 +1,13 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
-import { DepartmentsService } from './departments.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Controller, Get, Post, Body, UseGuards } from "@nestjs/common";
+import { DepartmentsService } from "./departments.service";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 
-@Controller('departments')
+@Controller("departments")
 @UseGuards(JwtAuthGuard)
 export class DepartmentsController {
   constructor(private departmentsService: DepartmentsService) {}
 
-  @Get('tree')
+  @Get("tree")
   async getTree() {
     return this.departmentsService.getTree();
   }

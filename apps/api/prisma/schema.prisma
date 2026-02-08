@@ -41,13 +41,14 @@ model User {
   departmentId  String?
   department    Department?    @relation(fields: [departmentId], references: [id])
 
-  supervisorId  String?
-  supervisor    User?          @relation("SupervisorRelation", fields: [supervisorId], references: [id])
-  subordinates  User[]         @relation("SupervisorRelation")
+  managerId     String?
+  manager       User?          @relation("ManagerRelation", fields: [managerId], references: [id])
+  subordinates  User[]         @relation("ManagerRelation")
 
   posts         Post[]
-  approvals     Approval[]
+  approvals     ApprovalDoc[]
   approvalLines ApprovalLine[]
+  auditLogs     AuditLog[]
 
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -102,7 +103,7 @@ model Post {
   @@map("posts")
 }
 
-model Approval {
+model ApprovalDoc {
   id          String         @id @default(uuid())
   title       String
   content     String         @db.Text
@@ -116,7 +117,7 @@ model Approval {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
-  @@map("approvals")
+  @@map("approval_docs")
 }
 
 model ApprovalLine {
@@ -129,10 +130,26 @@ model ApprovalLine {
   approver   User           @relation(fields: [approverId], references: [id])
 
   approvalId String
-  approval   Approval       @relation(fields: [approvalId], references: [id])
+  approval   ApprovalDoc    @relation(fields: [approvalId], references: [id])
 
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
 
   @@map("approval_lines")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String   // e.g., "LOGIN", "LOGOUT", "UPDATE_USER"
+  ipAddress String?
+  userAgent String?
+  metadata  Json?    // 추가 정보 (선택)
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("audit_logs")
+  @@index([userId])
+  @@index([createdAt])
 }

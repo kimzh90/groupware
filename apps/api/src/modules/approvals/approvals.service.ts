@@ -1,6 +1,6 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { ApprovalStatus } from '@prisma/client';
+import { Injectable, BadRequestException } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { ApprovalStatus } from "@prisma/client";
 
 @Injectable()
 export class ApprovalsService {
@@ -9,7 +9,7 @@ export class ApprovalsService {
   async create(userId: string, data: any) {
     const { title, content, approverIds } = data;
 
-    return this.prisma.approval.create({
+    return this.prisma.approvalDoc.create({
       data: {
         title,
         content,
@@ -29,35 +29,45 @@ export class ApprovalsService {
     });
   }
 
-  async process(userId: string, approvalId: string, action: 'APPROVE' | 'REJECT', comment?: string) {
-    const approval = await this.prisma.approval.findUnique({
+  async process(
+    userId: string,
+    approvalId: string,
+    action: "APPROVE" | "REJECT",
+    comment?: string,
+  ) {
+    const approval = await this.prisma.approvalDoc.findUnique({
       where: { id: approvalId },
-      include: { lines: { orderBy: { step: 'asc' } } },
+      include: { lines: { orderBy: { step: "asc" } } },
     });
 
-    if (!approval) throw new BadRequestException('Approval not found');
+    if (!approval) throw new BadRequestException("Approval not found");
 
     const currentLine = approval.lines.find(
-      (line) => line.status === ApprovalStatus.PENDING && line.approverId === userId,
+      (line) =>
+        line.status === ApprovalStatus.PENDING && line.approverId === userId,
     );
 
-    if (!currentLine) throw new BadRequestException('No pending approval for this user');
+    if (!currentLine)
+      throw new BadRequestException("No pending approval for this user");
 
-    const newStatus = action === 'APPROVE' ? ApprovalStatus.APPROVED : ApprovalStatus.REJECTED;
+    const newStatus =
+      action === "APPROVE" ? ApprovalStatus.APPROVED : ApprovalStatus.REJECTED;
 
     await this.prisma.approvalLine.update({
       where: { id: currentLine.id },
       data: { status: newStatus, comment },
     });
 
-    if (action === 'REJECT') {
-      await this.prisma.approval.update({
+    if (action === "REJECT") {
+      await this.prisma.approvalDoc.update({
         where: { id: approvalId },
         data: { status: ApprovalStatus.REJECTED },
       });
     } else {
       // Find next step
-      const nextLine = approval.lines.find((line) => line.step === currentLine.step + 1);
+      const nextLine = approval.lines.find(
+        (line) => line.step === currentLine.step + 1,
+      );
       if (nextLine) {
         await this.prisma.approvalLine.update({
           where: { id: nextLine.id },
@@ -65,7 +75,7 @@ export class ApprovalsService {
         });
       } else {
         // All steps approved
-        await this.prisma.approval.update({
+        await this.prisma.approvalDoc.update({
           where: { id: approvalId },
           data: { status: ApprovalStatus.APPROVED },
         });
@@ -76,14 +86,65 @@ export class ApprovalsService {
   }
 
   async findAll(userId: string) {
-    return this.prisma.approval.findMany({
+    return this.prisma.approvalDoc.findMany({
       where: {
-        OR: [{ requesterId: userId }, { lines: { some: { approverId: userId } } }],
+        OR: [
+          { requesterId: userId },
+          { lines: { some: { approverId: userId } } },
+        ],
       },
       include: {
-        requester: { select: { name: true } },
-        lines: { include: { approver: { select: { name: true } } } },
+        requester: {
+          select: {
+            name: true,
+            position: true,
+            department: { select: { name: true } },
+          },
+        },
+        lines: {
+          include: {
+            approver: {
+              select: {
+                name: true,
+                position: true,
+                department: { select: { name: true } },
+              },
+            },
+          },
+          orderBy: { step: "asc" },
+        },
       },
     });
+  }
+
+  async findOne(id: string) {
+    const approval = await this.prisma.approvalDoc.findUnique({
+      where: { id },
+      include: {
+        requester: {
+          select: {
+            name: true,
+            position: true,
+            employeeId: true,
+            department: { select: { name: true } },
+          },
+        },
+        lines: {
+          include: {
+            approver: {
+              select: {
+                name: true,
+                position: true,
+                department: { select: { name: true } },
+              },
+            },
+          },
+          orderBy: { step: "asc" },
+        },
+      },
+    });
+
+    if (!approval) throw new BadRequestException("Approval not found");
+    return approval;
   }
 }

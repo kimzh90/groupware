@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
-import { ApprovalsService } from './approvals.service';
-import { ApprovalsController } from './approvals.controller';
+import { Module } from "@nestjs/common";
+import { ApprovalsService } from "./approvals.service";
+import { ApprovalsController } from "./approvals.controller";
 
 @Module({
   controllers: [ApprovalsController],

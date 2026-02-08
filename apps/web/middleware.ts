@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  if (pathname.startsWith('/dashboard/admin') && userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN') {
+  if (pathname.startsWith('/dashboard/admin') && userRole !== 'SUPER_ADMIN') {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 

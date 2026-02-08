@@ -25,9 +25,11 @@ apps/api/
 │   │   ├── auth/         # JWT Auth, Middleware
 │   │   ├── users/        # User management
 │   │   ├── departments/  # Department hierarchy
-│   │   ├── boards/       # Board management
-│   │   ├── posts/        # Post management
-│   │   └── approvals/    # Electronic approval workflow
+│   │   ├── boards/       # 게시판 관리
+│   │   ├── posts/        # 게시물 관리
+│   │   ├── approvals/    # 전자결재 워크플로우
+│   │   ├── admin/        # 관리자 통계 및 대시보드 API [NEW]
+│   │   └── audit/        # 시스템 감사 로그 기록 [NEW]
 │   ├── common/           # Shared guards, decorators
 │   ├── config/           # App configuration
 │   └── main.ts           # Entry point

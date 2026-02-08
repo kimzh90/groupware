@@ -9,7 +9,24 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().accessToken;
+  let token = useAuthStore.getState().accessToken;
+
+  // Fallback for requests that happen before hydration
+  if (!token && typeof window !== 'undefined') {
+    const authStorage = localStorage.getItem('auth-storage');
+    if (authStorage) {
+      try {
+        const parsed = JSON.parse(authStorage);
+        token = parsed.state?.accessToken;
+        console.log('[api-client] Token recovered from localStorage:', !!token);
+      } catch (e) {
+        console.error('[api-client] Failed to parse auth-storage from localStorage', e);
+      }
+    }
+  }
+
+  console.log(`[api-client] Requesting ${config.url} with token: ${token ? 'PRESENT' : 'MISSING'}`);
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
