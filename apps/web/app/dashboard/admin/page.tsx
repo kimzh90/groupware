@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/lib/api/admin';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Users, FileText, Clock, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function AdminDashboardPage() {
@@ -130,8 +131,8 @@ export default function AdminDashboardPage() {
 
       {/* Quick Links */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <a
-          href="/admin/users"
+        <Link
+          href="/dashboard/admin/users"
           className="block p-6 bg-white rounded border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all group"
         >
           <div className="flex items-center justify-between">
@@ -143,10 +144,10 @@ export default function AdminDashboardPage() {
             </div>
             <Users className="text-gray-400 group-hover:text-blue-600 transition-colors" size={32} />
           </div>
-        </a>
+        </Link>
 
-        <a
-          href="/admin/logs"
+        <Link
+          href="/dashboard/admin/logs"
           className="block p-6 bg-white rounded border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all group"
         >
           <div className="flex items-center justify-between">
@@ -158,7 +159,7 @@ export default function AdminDashboardPage() {
             </div>
             <FileText className="text-gray-400 group-hover:text-blue-600 transition-colors" size={32} />
           </div>
-        </a>
+        </Link>
       </div>
     </div>
   );

@@ -1,57 +1,120 @@
 'use client';
 
 import Link from 'next/link';
-import { LayoutDashboard, FileText, Settings, LogOut, Monitor } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '../store/useAuthStore';
+import {
+  Home,
+  FileText,
+  MessageSquare,
+  Network,
+  Clock,
+  Settings,
+  LogOut,
+  Shield,
+} from 'lucide-react';
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
 
-  const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
+  const isActive = (path: string) =>
+    pathname === path || (path !== '/dashboard' && pathname.startsWith(`${path}/`));
 
   const menuItems = [
-    { href: '/dashboard', label: '대시보드', icon: LayoutDashboard },
+    { href: '/dashboard', label: '홈', icon: Home },
     { href: '/dashboard/approvals', label: '전자결재', icon: FileText },
-    { href: '/admin', label: '모니터링', icon: Monitor },
+    { href: '/dashboard/boards', label: '게시판', icon: MessageSquare },
+    { href: '/dashboard/organization', label: '조직도', icon: Network },
+    { href: '/dashboard/attendance', label: '근태관리', icon: Clock },
+  ];
+
+  const adminItems = [
     { href: '/dashboard/admin', label: '관리자 설정', icon: Settings },
   ];
 
+  const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN';
+
+  const handleLogout = () => {
+    logout();
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    document.cookie = 'role=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    window.location.href = '/login';
+  };
+
   return (
-    <aside className="w-64 bg-[#FAFBFC] border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col">
-      <div className="p-6 h-16 flex items-center border-b border-gray-200">
-        <div className="flex items-center gap-2 text-blue-700 font-bold text-xl">
-          <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white">G</div>
-          <span>Groupware</span>
-        </div>
+    <aside className="w-64 bg-white border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col shadow-sm">
+      {/* Logo */}
+      <div className="p-5 h-16 flex items-center border-b border-gray-100">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-sm">
+            G
+          </div>
+          <span className="font-bold text-xl text-gray-800">그룹웨어</span>
+        </Link>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
+      {/* Main Menu */}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <p className="px-3 pb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">메뉴</p>
         {menuItems.map((item) => {
           const active = isActive(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard');
           const Icon = item.icon;
-
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${active
-                ? 'bg-blue-50 text-blue-700'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${active
+                ? 'bg-blue-50 text-blue-700 shadow-sm'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
             >
-              <Icon size={18} />
+              <Icon size={18} strokeWidth={active ? 2.5 : 2} />
               {item.label}
             </Link>
           );
         })}
+
+        {/* Admin Menu */}
+        {isAdmin && (
+          <>
+            <div className="pt-4 pb-2">
+              <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                <Shield size={12} />
+                관리자
+              </p>
+            </div>
+            {adminItems.map((item) => {
+              const active = isActive(item.href);
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${active
+                    ? 'bg-blue-50 text-blue-700 shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                >
+                  <Icon size={18} strokeWidth={active ? 2.5 : 2} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </>
+        )}
       </nav>
 
-      <div className="p-4 border-t border-gray-200">
+      {/* User Info & Logout */}
+      <div className="p-3 border-t border-gray-100">
+        <div className="px-3 py-2 mb-2">
+          <p className="text-sm font-medium text-gray-800 truncate">{user?.name || '사용자'}</p>
+          <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+        </div>
         <button
-          onClick={logout}
-          className="flex items-center gap-3 px-3 py-2 w-full rounded-md text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-all duration-200"
         >
           <LogOut size={18} />
           로그아웃

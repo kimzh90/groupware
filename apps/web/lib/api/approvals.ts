@@ -31,13 +31,23 @@ export interface ApprovalDoc {
 }
 
 export const approvalsApi = {
-    create: (data: { title: string; content: string; approverIds: string[] }) =>
-        apiClient.post('/approvals', data),
+    create: async (data: { title: string; content: string; approverIds: string[] }) => {
+        const res: any = await apiClient.post('/approvals', data);
+        return res.data;
+    },
 
-    findAll: () => apiClient.get<any, ApprovalDoc[]>('/approvals'),
+    findAll: async () => {
+        const res: any = await apiClient.get('/approvals');
+        return res.data;
+    },
 
-    findOne: (id: string) => apiClient.get<any, ApprovalDoc>(`/approvals/${id}`),
+    findOne: async (id: string) => {
+        const res: any = await apiClient.get(`/approvals/${id}`);
+        return res.data;
+    },
 
-    process: (id: string, action: 'APPROVE' | 'REJECT', comment?: string) =>
-        apiClient.put(`/approvals/${id}/process`, { action, comment }),
+    process: async (id: string, action: 'APPROVE' | 'REJECT', comment?: string) => {
+        const res: any = await apiClient.put(`/approvals/${id}/process`, { action, comment });
+        return res.data;
+    },
 };

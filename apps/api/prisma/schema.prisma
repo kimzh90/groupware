@@ -49,6 +49,7 @@ model User {
   approvals     ApprovalDoc[]
   approvalLines ApprovalLine[]
   auditLogs     AuditLog[]
+  attendances   Attendance[]
 
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -136,6 +137,32 @@ model ApprovalLine {
   updatedAt  DateTime       @updatedAt
 
   @@map("approval_lines")
+}
+
+enum AttendanceStatus {
+  NORMAL      // 정상
+  LATE        // 지각
+  EARLY_LEAVE // 조퇴
+  ABSENT      // 결근
+}
+
+model Attendance {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime         @db.Date
+  clockIn   DateTime?
+  clockOut  DateTime?
+  status    AttendanceStatus @default(NORMAL)
+  memo      String?
+
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@unique([userId, date])
+  @@map("attendances")
+  @@index([userId])
+  @@index([date])
 }
 
 model AuditLog {
