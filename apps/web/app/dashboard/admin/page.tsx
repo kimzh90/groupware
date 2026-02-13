@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/lib/api/admin';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Users, FileText, Clock, TrendingUp } from 'lucide-react';
+import { Users, FileText, Clock, TrendingUp, LayoutTemplate } from 'lucide-react';
 import Link from 'next/link';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -75,7 +75,7 @@ export default function AdminDashboardPage() {
         <p className="text-gray-500 mt-1">시스템 현황을 한눈에 확인하세요.</p>
       </div>
 
-      {/* Stats Cards */}
+      {/* 통계 카드 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((card) => {
           const Icon = card.icon;
@@ -98,7 +98,7 @@ export default function AdminDashboardPage() {
         })}
       </div>
 
-      {/* Weekly Login Chart */}
+      {/* 주간 로그인 차트 */}
       <div className="bg-white p-6 rounded border border-gray-200 shadow-sm">
         <h2 className="text-lg font-semibold text-[#172B4D] mb-4">주간 로그인 현황</h2>
         <div className="h-80">
@@ -129,8 +129,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Quick Links */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Link
           href="/dashboard/admin/users"
           className="block p-6 bg-white rounded border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all group"
@@ -143,6 +142,21 @@ export default function AdminDashboardPage() {
               <p className="text-sm text-gray-500">계정 관리 및 권한 설정</p>
             </div>
             <Users className="text-gray-400 group-hover:text-blue-600 transition-colors" size={32} />
+          </div>
+        </Link>
+
+        <Link
+          href="/dashboard/admin/templates"
+          className="block p-6 bg-white rounded border border-gray-200 shadow-sm hover:shadow-md hover:border-violet-300 transition-all group"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-[#172B4D] group-hover:text-violet-600 mb-1">
+                결재 양식 관리
+              </h3>
+              <p className="text-sm text-gray-500">결재 문서 양식 생성 및 편집</p>
+            </div>
+            <LayoutTemplate className="text-gray-400 group-hover:text-violet-600 transition-colors" size={32} />
           </div>
         </Link>
 

@@ -62,7 +62,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
+      {/* 환영 섹션 */}
       <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 rounded-2xl p-8 text-white shadow-xl shadow-blue-200/50 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
@@ -94,7 +94,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Quick Actions */}
+      {/* 빠른 작업 */}
       <div>
         <h2 className="text-lg font-bold text-gray-900 mb-4">빠른 실행</h2>
         <div className="flex flex-wrap gap-3">
@@ -122,7 +122,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Feature Cards */}
+      {/* 기능 카드 */}
       <div>
         <h2 className="text-lg font-bold text-gray-900 mb-4">그룹웨어 서비스</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -150,7 +150,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Admin Quick Access */}
+      {/* 관리자 빠른 접근 */}
       {(user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN') && (
         <div>
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">

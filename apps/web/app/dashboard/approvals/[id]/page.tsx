@@ -39,8 +39,8 @@ export default function ApprovalDetailPage() {
         },
     });
 
-    if (isLoading) return <div className="flex items-center justify-center h-64 text-gray-500">Loading document...</div>;
-    if (!doc) return <div className="flex items-center justify-center h-64 text-gray-500">Document not found.</div>;
+    if (isLoading) return <div className="flex items-center justify-center h-64 text-gray-500">문서를 불러오는 중...</div>;
+    if (!doc) return <div className="flex items-center justify-center h-64 text-gray-500">문서를 찾을 수 없습니다.</div>;
 
     const currentPendingLine = doc.lines.find(
         (line) => line.status === 'PENDING' && line.approver.name === user?.name
@@ -49,19 +49,19 @@ export default function ApprovalDetailPage() {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'APPROVED':
-                return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-sm font-medium bg-green-100 text-green-800 uppercase tracking-wide"><CheckCircle2 size={14} /> APPROVED</span>;
+                return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-sm font-medium bg-green-100 text-green-800 tracking-wide"><CheckCircle2 size={14} /> 승인</span>;
             case 'REJECTED':
-                return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-sm font-medium bg-red-100 text-red-800 uppercase tracking-wide"><XCircle size={14} /> REJECTED</span>;
+                return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-sm font-medium bg-red-100 text-red-800 tracking-wide"><XCircle size={14} /> 반려</span>;
             case 'PENDING':
-                return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-sm font-medium bg-blue-100 text-blue-800 uppercase tracking-wide"><Clock size={14} /> PENDING</span>;
+                return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-sm font-medium bg-blue-100 text-blue-800 tracking-wide"><Clock size={14} /> 대기</span>;
             default:
-                return <span className="inline-flex items-center px-2.5 py-1 rounded text-sm font-medium bg-gray-100 text-gray-800 uppercase tracking-wide">{status}</span>;
+                return <span className="inline-flex items-center px-2.5 py-1 rounded text-sm font-medium bg-gray-100 text-gray-800 tracking-wide">{status}</span>;
         }
     };
 
     return (
-        <div className="max-w-6xl mx-auto pb-20">
-            {/* Header */}
+        <div className="px-6 pb-20">
+            {/* 헤더 */}
             <div className="mb-6">
                 <div className="flex items-center gap-4 mb-4">
                     <Link href="/dashboard/approvals" className="text-gray-500 hover:text-gray-900 transition-colors">
@@ -69,7 +69,7 @@ export default function ApprovalDetailPage() {
                     </Link>
                     <nav className="text-sm breadcrumbs text-gray-500">
                         <span className="mx-2">/</span>
-                        <Link href="/dashboard/approvals" className="hover:text-blue-600">Approvals</Link>
+                        <Link href="/dashboard/approvals" className="hover:text-blue-600">전자결재</Link>
                         <span className="mx-2">/</span>
                         <span className="text-gray-900 font-medium">{doc.id.slice(0, 8).toUpperCase()}</span>
                     </nav>
@@ -79,24 +79,23 @@ export default function ApprovalDetailPage() {
                         <h1 className="text-2xl font-bold text-[#172B4D] mb-2">{doc.title}</h1>
                         <div className="flex items-center gap-3">
                             {getStatusBadge(doc.status)}
-                            <span className="text-gray-500 text-sm">Created on {new Date(doc.createdAt).toLocaleString()}</span>
+                            <span className="text-gray-500 text-sm">작성일: {new Date(doc.createdAt).toLocaleString('ko-KR')}</span>
                         </div>
                     </div>
-                    {/* Action Buttons could go here */}
                     <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors">
                         <Download size={16} />
-                        Export PDF
+                        PDF 내보내기
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Main Content (Document) */}
-                <div className="lg:col-span-8 space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8">
+                {/* 본문 내용 */}
+                <div className="space-y-6">
                     <div className="bg-white p-12 rounded shadow-sm border border-gray-200 min-h-[600px] print:shadow-none">
                         <div className="flex justify-between items-start border-b border-gray-200 pb-8 mb-8">
                             <div>
-                                <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Requester</div>
+                                <div className="text-xs font-bold text-gray-500 tracking-widest mb-2">기안자</div>
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
                                         <User size={20} />
@@ -108,34 +107,35 @@ export default function ApprovalDetailPage() {
                                 </div>
                             </div>
                             <div className="text-right">
-                                <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Details</div>
-                                <div className="text-sm font-mono text-gray-500">ID: {doc.id.slice(0, 8)}</div>
-                                <div className="text-sm text-gray-500">Ver: 1.0</div>
+                                <div className="text-xs font-bold text-gray-500 tracking-widest mb-2">문서 정보</div>
+                                <div className="text-sm font-mono text-gray-500">문서번호: {doc.id.slice(0, 8)}</div>
+                                <div className="text-sm text-gray-500">버전: 1.0</div>
                             </div>
                         </div>
 
-                        <div className="prose max-w-none text-[#172B4D] leading-relaxed whitespace-pre-wrap">
-                            {doc.content}
-                        </div>
+                        <div
+                            className="tiptap-editor max-w-none text-[#172B4D] leading-relaxed"
+                            dangerouslySetInnerHTML={{ __html: doc.content }}
+                        />
                     </div>
                 </div>
 
-                {/* Sidebar (Actions & Line) */}
-                <div className="lg:col-span-4 space-y-6">
-                    {/* Action Card */}
+                {/* 사이드바 (결재 처리 & 결재선) */}
+                <div className="space-y-6">
+                    {/* 결재 처리 */}
                     {currentPendingLine && (
                         <div className="bg-white p-6 rounded shadow-sm border border-gray-200 border-l-4 border-l-blue-600">
                             <h3 className="text-sm font-bold text-[#172B4D] mb-4 flex items-center gap-2">
                                 <MessageSquare size={16} className="text-blue-600" />
-                                Your Action Required
+                                결재 처리가 필요합니다
                             </h3>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Comment (Optional)</label>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">의견 (선택사항)</label>
                                     <textarea
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}
-                                        placeholder="Add a comment..."
+                                        placeholder="의견을 입력하세요..."
                                         rows={3}
                                         className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all resize-none"
                                     />
@@ -146,25 +146,25 @@ export default function ApprovalDetailPage() {
                                         disabled={mutation.isPending}
                                         className="flex-1 bg-[#0052CC] text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                                     >
-                                        Approve
+                                        승인
                                     </button>
                                     <button
                                         onClick={() => mutation.mutate({ action: 'REJECT', comment })}
                                         disabled={mutation.isPending}
                                         className="flex-1 bg-white text-red-600 border border-red-200 px-4 py-2 rounded text-sm font-medium hover:bg-red-50 transition-colors"
                                     >
-                                        Reject
+                                        반려
                                     </button>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* Approval Line */}
+                    {/* 결재선 */}
                     <div className="bg-white p-6 rounded shadow-sm border border-gray-200">
-                        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Approval Line</h3>
+                        <h3 className="text-xs font-bold text-gray-500 tracking-widest mb-4">결재선</h3>
                         <div className="relative space-y-6 pl-2">
-                            {/* Vertical line connection */}
+                            {/* 세로 연결선 */}
                             <div className="absolute left-[15px] top-3 bottom-3 w-px bg-gray-200 -z-0"></div>
 
                             {doc.lines.map((line) => (
@@ -184,8 +184,8 @@ export default function ApprovalDetailPage() {
                                                 <div className="text-sm font-semibold text-[#172B4D]">{line.approver.name}</div>
                                                 <div className="text-xs text-gray-500">{line.approver.department.name} · {line.approver.position}</div>
                                             </div>
-                                            <div className="text-[10px] font-bold text-gray-400 uppercase bg-gray-50 px-1.5 py-0.5 rounded">
-                                                {line.status}
+                                            <div className="text-[10px] font-bold text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded">
+                                                {line.status === 'APPROVED' ? '승인' : line.status === 'REJECTED' ? '반려' : line.status === 'PENDING' ? '대기' : '대기중'}
                                             </div>
                                         </div>
                                         {line.comment && (

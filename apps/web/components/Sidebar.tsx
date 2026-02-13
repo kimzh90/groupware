@@ -45,7 +45,7 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col shadow-sm">
-      {/* Logo */}
+      {/* 로고 */}
       <div className="p-5 h-16 flex items-center border-b border-gray-100">
         <Link href="/dashboard" className="flex items-center gap-2.5">
           <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-sm">
@@ -55,7 +55,7 @@ export default function Sidebar() {
         </Link>
       </div>
 
-      {/* Main Menu */}
+      {/* 메인 메뉴 */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         <p className="px-3 pb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">메뉴</p>
         {menuItems.map((item) => {
@@ -76,7 +76,7 @@ export default function Sidebar() {
           );
         })}
 
-        {/* Admin Menu */}
+        {/* 관리자 메뉴 */}
         {isAdmin && (
           <>
             <div className="pt-4 pb-2">
@@ -106,7 +106,7 @@ export default function Sidebar() {
         )}
       </nav>
 
-      {/* User Info & Logout */}
+      {/* 사용자 정보 & 로그아웃 */}
       <div className="p-3 border-t border-gray-100">
         <div className="px-3 py-2 mb-2">
           <p className="text-sm font-medium text-gray-800 truncate">{user?.name || '사용자'}</p>

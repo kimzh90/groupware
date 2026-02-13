@@ -6,6 +6,7 @@ import { postsApi } from '../../../../../lib/api/boards';
 import { ArrowLeft, Send } from 'lucide-react';
 import Link from 'next/link';
 import { use } from 'react';
+import { useToastStore } from '../../../../../store/useToastStore';
 
 export default function NewPostPage({ params }: { params: Promise<{ boardId: string }> }) {
     const { boardId } = use(params);
@@ -23,7 +24,7 @@ export default function NewPostPage({ params }: { params: Promise<{ boardId: str
             await postsApi.create({ title, content, boardId });
             router.push(`/dashboard/boards/${boardId}`);
         } catch (err) {
-            alert('게시물 작성에 실패했습니다.');
+            useToastStore.getState().error('작성 실패', '게시물 작성에 실패했습니다.');
         } finally {
             setLoading(false);
         }
@@ -40,7 +41,7 @@ export default function NewPostPage({ params }: { params: Promise<{ boardId: str
 
             <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">제목</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">제목 <span className="text-red-500">*</span></label>
                     <input
                         type="text"
                         value={title}
@@ -51,7 +52,7 @@ export default function NewPostPage({ params }: { params: Promise<{ boardId: str
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">내용</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">내용 <span className="text-red-500">*</span></label>
                     <textarea
                         value={content}
                         onChange={(e) => setContent(e.target.value)}

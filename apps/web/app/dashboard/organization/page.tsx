@@ -32,7 +32,7 @@ function DepartmentCard({ dept, level = 0 }: { dept: DeptNode; level?: number })
     return (
         <div className={`${level > 0 ? 'ml-8' : ''}`}>
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 mb-3 overflow-hidden">
-                {/* Department Header */}
+                {/* 부서 헤더 */}
                 <button
                     onClick={() => setExpanded(!expanded)}
                     className="w-full flex items-center gap-3 p-4 hover:bg-gray-50/50 transition-colors text-left"
@@ -54,7 +54,7 @@ function DepartmentCard({ dept, level = 0 }: { dept: DeptNode; level?: number })
                     )}
                 </button>
 
-                {/* Members */}
+                {/* 구성원 목록 */}
                 {expanded && dept.users && dept.users.length > 0 && (
                     <div className="border-t border-gray-50 px-4 py-3">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -80,7 +80,7 @@ function DepartmentCard({ dept, level = 0 }: { dept: DeptNode; level?: number })
                 )}
             </div>
 
-            {/* Children Departments */}
+            {/* 하위 부서 */}
             {expanded && hasChildren && (
                 <div className="relative">
                     <div className="absolute left-4 top-0 bottom-3 w-px bg-gray-200"></div>

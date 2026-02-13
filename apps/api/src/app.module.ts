@@ -8,6 +8,7 @@ import { BoardsModule } from "./modules/boards/boards.module";
 import { PostsModule } from "./modules/posts/posts.module";
 import { AdminModule } from "./modules/admin/admin.module";
 import { AttendanceModule } from "./modules/attendance/attendance.module";
+import { ApprovalTemplatesModule } from "./modules/approval-templates/approval-templates.module";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AttendanceModule } from "./modules/attendance/attendance.module";
     PostsModule,
     AdminModule,
     AttendanceModule,
+    ApprovalTemplatesModule,
   ],
 })
 export class AppModule { }

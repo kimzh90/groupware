@@ -5,6 +5,7 @@ import { attendanceApi } from '../../../lib/api/attendance';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { Clock, LogIn, LogOut, CalendarDays, CheckCircle2, AlertTriangle, XCircle, Minus } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useToastStore } from '../../../store/useToastStore';
 
 export default function AttendancePage() {
     const queryClient = useQueryClient();
@@ -33,7 +34,7 @@ export default function AttendancePage() {
             queryClient.invalidateQueries({ queryKey: ['attendance'] });
         },
         onError: (err: any) => {
-            alert(err?.message || '출근 처리에 실패했습니다.');
+            useToastStore.getState().error('출근 실패', err?.message || '출근 처리에 실패했습니다.');
         },
     });
 
@@ -43,7 +44,7 @@ export default function AttendancePage() {
             queryClient.invalidateQueries({ queryKey: ['attendance'] });
         },
         onError: (err: any) => {
-            alert(err?.message || '퇴근 처리에 실패했습니다.');
+            useToastStore.getState().error('퇴근 실패', err?.message || '퇴근 처리에 실패했습니다.');
         },
     });
 

@@ -2,11 +2,14 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { approvalsApi } from '../../../../lib/api/approvals';
+import { approvalTemplatesApi, ApprovalTemplate } from '../../../../lib/api/approval-templates';
 import OrgChartModal from '../../../../components/OrgChartModal';
-import { UserPlus, Send, ArrowLeft, Trash2, FileText, Info } from 'lucide-react';
+import { UserPlus, Send, ArrowLeft, Trash2, FileText, Info, LayoutTemplate, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import SharedEditor from '../../../../components/shared/editor';
+import { useToastStore } from '../../../../store/useToastStore';
 
 export default function NewApprovalPage() {
     const router = useRouter();
@@ -16,32 +19,60 @@ export default function NewApprovalPage() {
     const [selectedApprovers, setSelectedApprovers] = useState<Array<{ id: string; name: string; position: string }>>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // 양식 선택 관련 상태
+    const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+    const [editorKey, setEditorKey] = useState(0); // 에디터 리마운트용
+    const [showTemplateList, setShowTemplateList] = useState(false);
+
+    // 양식 목록 조회
+    const { data: templates = [] } = useQuery({
+        queryKey: ['approval-templates'],
+        queryFn: () => approvalTemplatesApi.findAll(false),
+    });
+
     const mutation = useMutation({
-        mutationFn: (data: { title: string; content: string; approverIds: string[] }) => approvalsApi.create(data),
+        mutationFn: (data: { title: string; content: string; approverIds: string[]; templateId?: string }) => approvalsApi.create(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['approvals'] });
             router.push('/dashboard/approvals');
         },
         onError: (error: any) => {
-            alert(error.message || '요청 중 오류가 발생했습니다.');
+            useToastStore.getState().error('기안 실패', error.message || '요청 중 오류가 발생했습니다.');
         },
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!title || !content || selectedApprovers.length === 0) {
-            alert('제목, 내용 및 결재자를 모두 입력해주세요.');
+        const strippedContent = content.replace(/<[^>]*>/g, '').trim();
+        if (!title || !strippedContent || selectedApprovers.length === 0) {
+            useToastStore.getState().warning('입력 확인', '제목, 내용 및 결재자를 모두 입력해주세요.');
             return;
         }
         mutation.mutate({
             title,
             content,
             approverIds: selectedApprovers.map(a => a.id),
+            ...(selectedTemplateId ? { templateId: selectedTemplateId } : {}),
         });
     };
 
+    const handleSelectTemplate = (template: ApprovalTemplate) => {
+        setSelectedTemplateId(template.id);
+        setContent(template.content);
+        setEditorKey(prev => prev + 1); // 에디터 리마운트하여 새 콘텐츠 로드
+        setShowTemplateList(false);
+    };
+
+    const handleClearTemplate = () => {
+        setSelectedTemplateId(null);
+        setContent('');
+        setEditorKey(prev => prev + 1);
+    };
+
+    const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+
     return (
-        <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+        <div className="px-6 space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
             <div className="flex items-center gap-4">
                 <Link href="/dashboard/approvals" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                     <ArrowLeft size={24} className="text-gray-600" />
@@ -52,12 +83,82 @@ export default function NewApprovalPage() {
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-20">
-                {/* Main Content */}
-                <div className="lg:col-span-2 space-y-6">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 pb-20">
+                {/* 본문 내용 */}
+                <div className="space-y-6">
                     <div className="bg-white p-8 rounded-3xl shadow-xl shadow-gray-100 border border-gray-100 space-y-6">
+                        {/* 양식 선택 영역 */}
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700 ml-1">문서 제목</label>
+                            <label className="text-sm font-bold text-gray-700 ml-1 flex items-center gap-1.5">양식 선택 <span className="text-[10px] font-medium text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">선택</span></label>
+                            <div className="relative">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowTemplateList(!showTemplateList)}
+                                    className="w-full flex items-center justify-between px-5 py-3.5 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-all text-left"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <LayoutTemplate size={18} className={selectedTemplate ? 'text-blue-500' : 'text-gray-400'} />
+                                        {selectedTemplate ? (
+                                            <div>
+                                                <span className="font-semibold text-gray-900">{selectedTemplate.name}</span>
+                                                {selectedTemplate.description && (
+                                                    <span className="text-xs text-gray-400 ml-2">{selectedTemplate.description}</span>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span className="text-gray-400">양식을 선택하세요 (선택 사항)</span>
+                                        )}
+                                    </div>
+                                    <ChevronDown size={18} className={`text-gray-400 transition-transform ${showTemplateList ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {/* 드롭다운 목록 */}
+                                {showTemplateList && (
+                                    <div className="absolute top-full mt-2 left-0 right-0 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 max-h-72 overflow-y-auto">
+                                        {/* 양식 없이 직접 작성 */}
+                                        <button
+                                            type="button"
+                                            onClick={handleClearTemplate}
+                                            className={`w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-gray-50 transition-colors border-b border-gray-50 ${!selectedTemplateId ? 'bg-blue-50/50' : ''
+                                                }`}
+                                        >
+                                            <FileText size={16} className="text-gray-400" />
+                                            <div>
+                                                <span className="font-medium text-gray-700">직접 작성</span>
+                                                <span className="text-xs text-gray-400 ml-2">양식 없이 자유 형식으로 작성</span>
+                                            </div>
+                                        </button>
+
+                                        {templates.length === 0 ? (
+                                            <div className="px-5 py-6 text-center text-gray-400 text-sm">
+                                                등록된 양식이 없습니다
+                                            </div>
+                                        ) : (
+                                            templates.map(tpl => (
+                                                <button
+                                                    key={tpl.id}
+                                                    type="button"
+                                                    onClick={() => handleSelectTemplate(tpl)}
+                                                    className={`w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-blue-50/50 transition-colors border-b border-gray-50 last:border-b-0 ${selectedTemplateId === tpl.id ? 'bg-blue-50' : ''
+                                                        }`}
+                                                >
+                                                    <LayoutTemplate size={16} className="text-violet-500 shrink-0" />
+                                                    <div className="min-w-0">
+                                                        <div className="font-medium text-gray-900 truncate">{tpl.name}</div>
+                                                        {tpl.description && (
+                                                            <div className="text-xs text-gray-400 truncate">{tpl.description}</div>
+                                                        )}
+                                                    </div>
+                                                </button>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-gray-700 ml-1 flex items-center gap-1">문서 제목 <span className="text-red-500">*</span></label>
                             <input
                                 type="text"
                                 value={title}
@@ -69,26 +170,25 @@ export default function NewApprovalPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700 ml-1">상세 내용</label>
-                            <textarea
-                                value={content}
-                                onChange={(e) => setContent(e.target.value)}
+                            <label className="text-sm font-bold text-gray-700 ml-1 flex items-center gap-1">상세 내용 <span className="text-red-500">*</span></label>
+                            <SharedEditor
+                                key={editorKey}
+                                mode="approval"
+                                initialContent={content}
+                                onChange={(html) => setContent(html)}
                                 placeholder="결재 내용을 상세히 기술해주세요"
-                                rows={12}
-                                className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all resize-none font-medium"
-                                required
                             />
                         </div>
                     </div>
                 </div>
 
-                {/* Sidebar for Approvers */}
+                {/* 결재선 사이드바 */}
                 <div className="space-y-6">
                     <div className="bg-white p-6 rounded-3xl shadow-xl shadow-gray-100 border border-gray-100 space-y-6 sticky top-8">
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                                 <FileText size={20} className="text-blue-500" />
-                                결재선 구성
+                                결재선 구성 <span className="text-red-500 text-sm">*</span>
                             </h2>
                             <button
                                 type="button"

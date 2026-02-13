@@ -50,6 +50,7 @@ model User {
   approvalLines ApprovalLine[]
   auditLogs     AuditLog[]
   attendances   Attendance[]
+  templates     ApprovalTemplate[] @relation("TemplateCreator")
 
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -104,6 +105,24 @@ model Post {
   @@map("posts")
 }
 
+model ApprovalTemplate {
+  id          String        @id @default(uuid())
+  name        String        // 양식 이름 (e.g., "휴가 신청서", "출장 보고서")
+  description String?       // 양식 설명
+  content     String        @db.Text // HTML 양식 본문
+  isActive    Boolean       @default(true)
+
+  creatorId   String
+  creator     User          @relation("TemplateCreator", fields: [creatorId], references: [id])
+
+  approvalDocs ApprovalDoc[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("approval_templates")
+}
+
 model ApprovalDoc {
   id          String         @id @default(uuid())
   title       String
@@ -112,6 +131,9 @@ model ApprovalDoc {
 
   requesterId String
   requester   User           @relation(fields: [requesterId], references: [id])
+
+  templateId  String?
+  template    ApprovalTemplate? @relation(fields: [templateId], references: [id])
 
   lines       ApprovalLine[]
 

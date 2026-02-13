@@ -56,7 +56,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1.5">아이디</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1.5">아이디 <span className="text-red-500">*</span></label>
             <input
               type="text"
               placeholder="아이디를 입력하세요"
@@ -67,7 +67,7 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1.5">비밀번호</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1.5">비밀번호 <span className="text-red-500">*</span></label>
             <input
               type="password"
               placeholder="비밀번호를 입력하세요"

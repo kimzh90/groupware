@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { User, X, Shield, Briefcase, UserCircle, Save } from 'lucide-react';
 import { usersApi, User as UserType } from '../lib/api/users';
 import apiClient from '../lib/api-client';
+import { useToastStore } from '../store/useToastStore';
 
 interface UserEditModalProps {
     isOpen: boolean;
@@ -48,7 +49,7 @@ export default function UserEditModal({ isOpen, onClose, user, onUpdate }: UserE
             onUpdate();
             onClose();
         } catch (error: any) {
-            alert(error.message || '수정 중 오류가 발생했습니다.');
+            useToastStore.getState().error('수정 실패', error.message || '수정 중 오류가 발생했습니다.');
         } finally {
             setIsSubmitting(false);
         }
@@ -75,11 +76,11 @@ export default function UserEditModal({ isOpen, onClose, user, onUpdate }: UserE
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                    {/* Role */}
+                    {/* 권한 */}
                     <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-700 flex items-center gap-2 tracking-tight">
                             <Shield size={16} className="text-blue-500" />
-                            권한 설정
+                            권한 설정 <span className="text-red-500">*</span>
                         </label>
                         <select
                             value={role}
@@ -92,11 +93,11 @@ export default function UserEditModal({ isOpen, onClose, user, onUpdate }: UserE
                         </select>
                     </div>
 
-                    {/* Department */}
+                    {/* 부서 */}
                     <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-700 flex items-center gap-2 tracking-tight">
                             <Briefcase size={16} className="text-blue-500" />
-                            소속 부서
+                            소속 부서 <span className="text-red-500">*</span>
                         </label>
                         <select
                             value={departmentId}
@@ -110,11 +111,11 @@ export default function UserEditModal({ isOpen, onClose, user, onUpdate }: UserE
                         </select>
                     </div>
 
-                    {/* Manager */}
+                    {/* 상급자 */}
                     <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-700 flex items-center gap-2 tracking-tight">
                             <User size={16} className="text-blue-500" />
-                            직속 상권자 (결재자)
+                            직속 상권자 (결재자) <span className="text-[10px] font-medium text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded ml-1">선택</span>
                         </label>
                         <select
                             value={managerId}
